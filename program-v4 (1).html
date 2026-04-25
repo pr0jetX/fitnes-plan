@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness Planı V3</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#111;--surface:#1a1a1a;--surface2:#222;--border:#2e2e2e;
+  --red:#ff4500;--green:#22c55e;--gold:#f59e0b;--blue:#3b82f6;--purple:#a855f7;
+  --text:#e8e8e8;--muted:#666;--light:#999;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;padding-bottom:80px}
+
+/* HERO */
+.hero{background:#111;padding:40px 24px 36px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;right:0;width:180px;height:100%;background:linear-gradient(90deg,transparent,rgba(255,69,0,.04));pointer-events:none}
+.h-tag{font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--red);margin-bottom:14px;font-weight:600}
+.h-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,14vw,110px);line-height:.85;letter-spacing:1px;color:#fff}
+.h-title em{color:var(--red);font-style:normal}
+.h-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chip{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:20px;border:1px solid}
+.cr{color:var(--red);border-color:rgba(255,69,0,.3);background:rgba(255,69,0,.08)}
+.cg{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08)}
+.cb{color:var(--gold);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
+
+/* TABS */
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);background:#0d0d0d;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.tab{padding:11px 4px;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;text-align:center;transition:color .2s;line-height:1.3}
+.tab.active{color:var(--red);border-bottom-color:var(--red)}
+.tab:hover:not(.active){color:#bbb}
+
+/* SECTIONS */
+.section{display:none;padding:20px 18px 40px;max-width:900px;margin:0 auto;animation:fadeUp .3s ease}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* DAY NAV */
+.day-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.d-btn{display:flex;flex-direction:column;align-items:center;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--muted);transition:all .2s;line-height:1;min-width:68px}
+.d-btn small{font-family:'Barlow',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-top:3px;font-weight:600}
+.d-btn.active{background:rgba(255,69,0,.1);border-color:var(--red);color:var(--red)}
+.d-btn.rest.active{background:rgba(34,197,94,.08);border-color:var(--green);color:var(--green)}
+.d-btn:hover:not(.active){border-color:#444;color:#ccc}
+
+/* DAY PANELS */
+.day-panel{display:none}
+.day-panel.active{display:block}
+
+/* BLOCK HEADERS */
+.block{margin-bottom:14px}
+.block-title{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;border-radius:6px 6px 0 0;
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;
+}
+.block-warm{background:#1a1200;border:1px solid #3a2800;border-bottom:none;color:var(--gold)}
+.block-cool{background:#0a1a10;border:1px solid #1a3a20;border-bottom:none;color:var(--green)}
+.block-train{background:rgba(255,69,0,.08);border:1px solid rgba(255,69,0,.2);border-bottom:none;color:var(--red)}
+.block-body{border-radius:0 0 6px 6px;overflow:hidden}
+.block-warm .block-body-inner{background:#141000;border:1px solid #3a2800;border-top:none;border-radius:0 0 6px 6px}
+.block-cool .block-body-inner{background:#080f0a;border:1px solid #1a3a20;border-top:none;border-radius:0 0 6px 6px}
+.block-train .block-body-inner{background:var(--surface);border:1px solid rgba(255,69,0,.15);border-top:none;border-radius:0 0 6px 6px}
+
+/* MUSCLE LABEL */
+.mlabel{padding:11px 16px 5px;font-size:9px;font-weight:700;letter-spacing:4px;text-transform:uppercase}
+.ml-red{color:var(--red)}
+.ml-blue{color:var(--blue)}
+.ml-purple{color:var(--purple)}
+.ml-green{color:var(--green)}
+.ml-gold{color:var(--gold)}
+
+/* EXERCISE ROW — Clear numbered list style */
+.ex-num{
+  display:flex;align-items:flex-start;gap:0;
+  padding:12px 16px;border-bottom:1px solid #1e1e1e;
+}
+.ex-num:last-child{border-bottom:none}
+.ex-index{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;color:rgba(255,69,0,.25);
+  line-height:1;min-width:28px;flex-shrink:0;padding-top:1px;
+}
+.ex-content{flex:1}
+.ex-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.ex-name{font-size:14px;font-weight:600;color:#e0e0e0;line-height:1.3}
+.ex-why{font-size:11.5px;color:var(--muted);font-weight:400;margin-top:3px;line-height:1.4}
+.sets{font-size:12px;font-weight:700;padding:4px 12px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.sr{color:var(--red);background:rgba(255,69,0,.1)}
+.sg{color:var(--green);background:rgba(34,197,94,.1)}
+.sb{color:var(--blue);background:rgba(59,130,246,.1)}
+.sgold{color:var(--gold);background:rgba(245,158,11,.1)}
+.sp{color:var(--purple);background:rgba(168,85,247,.1)}
+
+/* TAGS */
+.tag{font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 7px;border-radius:2px;margin-left:6px;vertical-align:middle;text-transform:uppercase}
+.tag-p{background:#2a0e00;color:#ff8c5a}
+.tag-ds{background:#1a0028;color:#d8b4fe}
+.tag-rp{background:#0a1a30;color:#93c5fd}
+
+/* TIPS */
+.tip{margin:4px 16px 10px;padding:9px 12px;border-radius:4px;font-size:12px;line-height:1.65;border-left:3px solid}
+.tip-gold{background:#120e00;border-color:var(--gold);color:#d4a017}
+.tip-blue{background:#080f1e;border-color:var(--blue);color:#93c5fd}
+.tip-green{background:#060f08;border-color:var(--green);color:#6ee7b7}
+.tip-red{background:#120400;border-color:var(--red);color:#fca5a5}
+.tip-purple{background:#0f0614;border-color:var(--purple);color:#d8b4fe}
+
+/* WARM/COOL ROWS */
+.wc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #1e1e1e;font-size:13px}
+.wc-row:last-child{border-bottom:none}
+.wc-name{color:#ccc;font-weight:500}
+.wc-detail{font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+.wc-right{text-align:right;flex-shrink:0;margin-left:10px}
+.wc-sets{font-size:12px;font-weight:700;color:var(--gold)}
+.wc-sets.green{color:var(--green)}
+
+/* REST INFO BAR */
+.rest-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#161616;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted);flex-wrap:wrap}
+.rest-bar strong{color:#fff}
+
+/* REST DAY */
+.rest-box{background:#0a1a0a;border:1px solid #1a3a1a;border-radius:8px;padding:24px 20px;text-align:center;margin-bottom:12px}
+.rest-icon{font-size:44px;margin-bottom:12px}
+.rest-title{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);letter-spacing:2px;margin-bottom:10px}
+.rest-text{font-size:13px;color:#888;line-height:1.8;max-width:380px;margin:0 auto}
+
+/* ALERT */
+.alert{padding:11px 15px;border-radius:6px;font-size:12.5px;line-height:1.7;border-left:4px solid;margin-bottom:14px}
+.al-r{background:rgba(255,69,0,.07);border-color:var(--red);color:#ffb39a}
+.al-g{background:rgba(34,197,94,.06);border-color:var(--green);color:#86efac}
+.al-gold{background:rgba(245,158,11,.06);border-color:var(--gold);color:#fcd34d}
+.al-b{background:rgba(59,130,246,.06);border-color:var(--blue);color:#93c5fd}
+
+/* NUTRITION */
+.macro-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.macro-box{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 10px;text-align:center}
+.macro-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;margin-bottom:3px}
+.macro-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.meal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:12px}
+.meal-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.meal-head{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.meal-name{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px}
+.meal-kcal{font-size:12px;font-weight:700;color:var(--red)}
+.meal-body{padding:12px 16px}
+.food-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid #1e1e1e;font-size:13px;gap:8px}
+.food-row:last-of-type{border-bottom:none}
+.food-name{color:#ccc;flex:1;font-weight:500}
+.food-alt{display:block;font-size:11px;color:var(--muted);margin-top:1px;font-weight:400}
+.food-qty{color:var(--red);font-weight:700;white-space:nowrap}
+.meal-note{margin-top:10px;padding:9px 11px;background:#161616;border-radius:4px;font-size:11.5px;color:var(--muted);line-height:1.6}
+
+/* WEEKLY */
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px}
+@media(max-width:560px){.week-row{grid-template-columns:repeat(4,1fr)}}
+.wd{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:11px 6px;text-align:center}
+.wd.train{border-top:3px solid var(--red)}
+.wd.rest{border-top:3px solid var(--green)}
+.wd-day{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
+.wd-type{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--red);margin-bottom:3px}
+.wd.rest .wd-type{color:var(--green)}
+.wd-detail{font-size:10px;color:#555;line-height:1.3}
+
+/* RULES */
+.rule{display:flex;gap:16px;align-items:flex-start;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+.r-num{font-family:'Bebas Neue',sans-serif;font-size:42px;color:rgba(255,69,0,.2);line-height:1;min-width:40px}
+.r-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.r-text{font-size:13px;color:var(--light);line-height:1.6}
+
+/* TRACKER */
+.tr-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.tr-head{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
+.tr-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid #1e1e1e;font-size:13px}
+.tr-row:last-child{border-bottom:none}
+.tr-lbl{flex:1;color:#bbb;font-weight:500}
+.t-inp{width:70px;padding:5px 8px;background:#111;border:1px solid var(--border);border-radius:3px;color:var(--red);font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;text-align:center}
+.t-inp:focus{outline:none;border-color:var(--red)}
+.t-unit{font-size:11px;color:var(--muted);min-width:28px;font-weight:500}
+.prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:480px){.prog-grid{grid-template-columns:1fr}}
+
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:4px}
+.sec-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;font-weight:600}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:6px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--light)}
+.leg-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="h-tag">Kişisel Program — Plaj Vücudu Hedefi</div>
+  <div class="h-title">FİTNESS<br><em>PLANI</em></div>
+  <div class="h-meta">
+    <span class="chip cr">2300 kcal · 155g Protein</span>
+    <span class="chip cg">Yağ Yakımı</span>
+    <span class="chip cb">4 Gün + Sabah Rutini</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('antrenman',this)">💪<br>Salon</div>
+  <div class="tab" onclick="switchTab('vucut',this)">🤸<br>Vücut A.</div>
+  <div class="tab" onclick="switchTab('beslenme',this)">🍗<br>Beslenme</div>
+  <div class="tab" onclick="switchTab('takvim',this)">📅<br>Takvim</div>
+  <div class="tab" onclick="switchTab('takip',this)">📊<br>Takip</div>
+  <div class="tab" onclick="switchTab('kurallar',this)">📋<br>Kurallar</div>
+</div>
+
+<!-- ══ ANTRENMAN ══ -->
+<div id="antrenman" class="section active">
+
+  <div class="alert al-gold">
+    ☀️ <strong>Sabah rutinin (her gün, değişmez):</strong> 50 Tyson push-up + 20–30 dk yürüyüş.<br>
+    Antrenman günlerinde sabah rutinle salon arasında en az 4 saat bırak.
+  </div>
+
+  <div class="legend">
+    <span class="leg-item"><span class="leg-badge" style="background:#2a0e00;color:#ff8c5a">ÖNCELİK</span> Ana hareket — asla atlama</span>
+    <span class="leg-item"><span class="leg-badge" style="background:#1a0028;color:#d8b4fe">DS</span> Drop Set — son sette %20 ağırlık düşür, devam et</span>
+    <span class="leg-item"><span class="leg-badge" style="background:#0a1a30;color:#93c5fd">RP</span> Rest-Pause — seti bitir, 15 sn bekle, 2–3 tekrar daha</span>
+  </div>
+
+  <div class="day-nav">
+    <button class="d-btn active" onclick="selDay(1,this)">G1<small>Göğüs</small></button>
+    <button class="d-btn" onclick="selDay(2,this)">G2<small>Sırt</small></button>
+    <button class="d-btn" onclick="selDay(3,this)">G3<small>Omuz</small></button>
+    <button class="d-btn" onclick="selDay(4,this)">G4<small>Bacak</small></button>
+    <button class="d-btn rest" onclick="selDay(5,this)">DİN<small>Dinlenme</small></button>
+  </div>
+
+  <!-- ════ GÜN 1: GÖĞÜS ════ -->
+  <div class="day-panel active" id="dp-1">
+
+    <div class="alert al-r">⚠️ Sabah 50 push-up yaptın — ısınmayı mutlaka yap. Üst göğüs bu programda <strong>öncelik</strong>: incline her zaman ilk sırada.</div>
+
+    <!-- ISINMA -->
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — Gün 1 · ~8 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Yürüyüş bandı veya bisiklet</div><div class="wc-detail">Hafif tempo — vücudu ısıt</div></div><div class="wc-right"><div class="wc-sets">5 dk</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Band Pull Apart</div><div class="wc-detail">Omuz rotator kaslarını aktive eder — göğüs antrenmanı öncesi kritik</div></div><div class="wc-right"><div class="wc-sets">2 × 15</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Omuz iç/dış rotasyon (band veya boşta)</div><div class="wc-detail">Kolu yana aç, dirsek 90° — içe/dışa döndür</div></div><div class="wc-right"><div class="wc-sets">2 × 12</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Incline Bench — çok hafif ısınma seti</div><div class="wc-detail">Boş bar veya çok hafif — sadece hareket paternini aktive et</div></div><div class="wc-right"><div class="wc-sets">2 × 15</div></div></div>
+      </div>
+    </div>
+
+    <!-- ANTRENMAN -->
+    <div class="block">
+      <div class="block-title block-train">💪 ANTRENMAN — Göğüs + Triceps · ~50 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-red">Göğüs — Üst (Öncelik)</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Incline Barbell Press <span class="tag tag-p">ÖNCELİK</span> <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Üst göğüs zayıf bölgen — en taze ve güçlüyken bu harekete başla</div></div>
+              <span class="sets sr">4 × 6–8</span>
+            </div>
+            <div class="tip tip-gold">💡 Bench açısı 30–45°. Daha dik gidersen omuz devreye girer. Dirsek 45–60° açıda. <strong>Son sette Drop Set:</strong> bitince ağırlığı %20 düşür, tekrar max'a kadar git.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Incline DB Press <span class="tag tag-rp">RP</span></div>
+              <div class="ex-why">Dambıl hareketi barbell'dan geniş ROM — kasın daha iyi gerilir</div></div>
+              <span class="sets sr">3 × 8–10</span>
+            </div>
+            <div class="tip tip-gold">💡 Son sette Rest-Pause: seti bitir → 15 sn dinlen → 2–3 tekrar daha. Ekstra kasılma sağlar.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Göğüs — Orta ve Alt</div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Flat Bench Press <span class="tag tag-rp">RP</span></div>
+              <div class="ex-why">Genel göğüs hacmi ve güç temeli</div></div>
+              <span class="sets sr">3 × 8–10</span>
+            </div>
+            <div class="tip tip-gold">💡 Tutuş orta-geniş, omuz genişliğinin 1.5 katı. Son sette Rest-Pause.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Low Cable Fly (alt tutaçtan çapraz yukarı) <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Alt göğüs konturunu belirginleştirir — dambıl fly değil kablo, gerim sabit kalır</div></div>
+              <span class="sets sr">3 × 12–15</span>
+            </div>
+            <div class="tip tip-gold">💡 Alt tutaçtan başla, ellerini çapraz yukarıya getir. Kasılmayı 1 sn tut. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Triceps</div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Dips <span class="tag tag-rp">RP</span></div>
+              <div class="ex-why">Gövde dik dur = triceps ağırlıklı. Öne eğilirsen göğüs devreye girer.</div></div>
+              <span class="sets sr">3 × MAX</span>
+            </div>
+            <div class="tip tip-gold">💡 Bitince hemen bench dip'e geç (sandalye/bank kenarı) → birkaç tekrar daha. Rest-Pause etkisi.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">6</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Overhead Cable Triceps Extension</div>
+              <div class="ex-why">Triceps'in en büyük başını (uzun baş) çalıştırır — kol üstündeyken en iyi aktive olur</div></div>
+              <span class="sets sr">3 × 10–12</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">7</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Triceps Pushdown — Rope <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Finisher — hafif ağırlık, yüksek tekrar, pump</div></div>
+              <span class="sets sr">3 × 15</span>
+            </div>
+            <div class="tip tip-gold">💡 Son sette Drop Set. Triceps'te iyi yanma hissi normal.</div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>1–4 arası compound hareketler: 2–3 dk</strong> &nbsp;|&nbsp; <strong>Triceps izolasyon: 60–75 sn</strong></div>
+      </div>
+    </div>
+
+    <!-- SOĞUMA -->
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — Gün 1 · ~7 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Göğüs esnetme — kapı kenarı</div><div class="wc-detail">Kapı çerçevesine el koy, ileri adım at — göğüsü aç</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Triceps esnetme — kol arkasında</div><div class="wc-detail">Kolu kafanın arkasına kaldır, karşı elle dirseği it</div></div><div class="wc-right"><div class="wc-sets green">2 × 30 sn / kol</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Omuz çapraz esnetme</div><div class="wc-detail">Kolu göğsün önünden karşıya uzat, karşı elle baskı uygula</div></div><div class="wc-right"><div class="wc-sets green">2 × 30 sn / kol</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Derin nefes + hafif yürüyüş</div><div class="wc-detail">Nabız normalleşsin</div></div><div class="wc-right"><div class="wc-sets green">2 dk</div></div></div>
+      </div>
+    </div>
+
+  </div><!-- end dp-1 -->
+
+  <!-- ════ GÜN 2: SIRT ════ -->
+  <div class="day-panel" id="dp-2">
+
+    <div class="alert al-g">🦅 <strong>Sırt günü</strong> — sabah push-up yorgunluğu neredeyse yok, en güçlü günün bu. Deadlift'e ısınma setleriyle gir.</div>
+
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — Gün 2 · ~8 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Yürüyüş bandı veya bisiklet</div><div class="wc-detail">Genel ısınma</div></div><div class="wc-right"><div class="wc-sets">5 dk</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Cat-Cow esneme</div><div class="wc-detail">Dört ayak pozisyonda — beli içbükey/dışbükey dönüşümlü hareket et</div></div><div class="wc-right"><div class="wc-sets">2 × 10</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Deadlift ısınma seti — sadece bar</div><div class="wc-detail">Form kontrolü, bel ısınması</div></div><div class="wc-right"><div class="wc-sets">2 × 8</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Lat Pulldown ısınma seti — çok hafif</div><div class="wc-detail">Lat aktivasyonu</div></div><div class="wc-right"><div class="wc-sets">1 × 15</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-train">💪 ANTRENMAN — Sırt + Biceps · ~55 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-green">Sırt — Compound</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Deadlift <span class="tag tag-p">ÖNCELİK</span></div>
+              <div class="ex-why">Tüm arka zincir — sırt kalınlığı ve genel güç için temel. Her hafta +2.5 kg.</div></div>
+              <span class="sets sg">3 × 5</span>
+            </div>
+            <div class="tip tip-gold">💡 Sırt düz, göğüs açık, bar bacağa yapışık. Nefes al, kilitle, kaldır. Setler arası <strong>3 dk</strong>.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-green">Sırt — Genişlik (Kanat)</div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Lat Pulldown — Geniş Tutuş <span class="tag tag-p">ÖNCELİK</span> <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">V şekli bu hareketten geliyor. Her hafta tutuşu değiştir: geniş → orta → V-bar.</div></div>
+              <span class="sets sg">4 × 8–10</span>
+            </div>
+            <div class="tip tip-gold">💡 Kürek kemiklerini önce aşağı-arkaya çek, sonra dirseği çek. Bar göğse gelince 1 sn tut. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Pull-up / Barfiks <span class="tag tag-rp">RP</span></div>
+              <div class="ex-why">Vücut ağırlığıyla en iyi kanat aktivasyonu. Her hafta +1 tekrar hedefi.</div></div>
+              <span class="sets sg">3 × MAX</span>
+            </div>
+            <div class="tip tip-gold">💡 5 tekrar bile olsa yap. Yapamıyorsan assisted machine. Son sette Rest-Pause: bitince 15 sn bekle, 1–2 tekrar daha.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-green">Sırt — Kalınlık</div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Seated Cable Row — V-bar <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Orta sırt kalınlığı — lat pulldown'ın tamamlayıcısı</div></div>
+              <span class="sets sg">3 × 10–12</span>
+            </div>
+            <div class="tip tip-gold">💡 Göğüs dik, minimal gövde sallanması. Kürek kemiklerini sonuna kadar sıkıştır, 1 sn tut. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Face Pull — Rope <span class="tag tag-rp">RP</span></div>
+              <div class="ex-why">Arka deltoid + rotator cuff — omuz sağlığı için kritik, ihmal etme</div></div>
+              <span class="sets sg">3 × 15</span>
+            </div>
+            <div class="tip tip-gold">💡 Kablo göz hizasında. Halatı yüzüne çek, dirsek kulak hizasında açılsın. Hafif ağırlık — form önemli.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-green">Biceps</div>
+
+        <div class="ex-num">
+          <div class="ex-index">6</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Barbell Curl — 21'ler</div>
+              <div class="ex-why">Biceps'i üç farklı açıdan çalıştırır — kısa sürede maksimum aktivasyon</div></div>
+              <span class="sets sg">3 set</span>
+            </div>
+            <div class="tip tip-gold">💡 <strong>7 tekrar</strong> sadece alt yarım (alttan ortaya) → <strong>7 tekrar</strong> sadece üst yarım (ortadan yukarıya) → <strong>7 tekrar</strong> tam hareket = 1 set. Durmadan yap.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">7</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Hammer Curl — Dumbbell <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Brachialis + ön kol — kol görselliğini tamamlar</div></div>
+              <span class="sets sg">3 × 10–12</span>
+            </div>
+            <div class="tip tip-gold">💡 Avuç içi birbirine bakacak (nötr tutuş). Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>Deadlift arası: 3 dk</strong> &nbsp;|&nbsp; <strong>Lat Pulldown / Row arası: 2 dk</strong> &nbsp;|&nbsp; <strong>Biceps arası: 60 sn</strong></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — Gün 2 · ~7 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Latissimus esnetme — asılı yan eğilme</div><div class="wc-detail">Barfikse tutun, vücudu yana bırak — yan lat esner</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / yan</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Biceps esnetme — duvar</div><div class="wc-detail">Avuç içi duvara yasla, gövdeyi ters döndür</div></div><div class="wc-right"><div class="wc-sets green">2 × 30 sn / kol</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Çocuk pozu (Child's Pose)</div><div class="wc-detail">Diz üstüne çök, kolları öne uzan, beli esnet</div></div><div class="wc-right"><div class="wc-sets green">1 × 60 sn</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Bel rotasyonu — yerde</div><div class="wc-detail">Sırt üstü, diz bükülü — dizleri bir yana, öteki yana</div></div><div class="wc-right"><div class="wc-sets green">10 tekrar / yön</div></div></div>
+      </div>
+    </div>
+
+  </div><!-- end dp-2 -->
+
+  <!-- ════ GÜN 3: OMUZ ════ -->
+  <div class="day-panel" id="dp-3">
+
+    <div class="alert al-gold">⚡ <strong>Omuz günü</strong> — sabah push-up omuzu hafif etkiler. Overhead Press ısınma setini atlatma. Lateral Raise bu günün en önemli hareketi — V şekli buradan gelir.</div>
+
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — Gün 3 · ~8 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Yürüyüş bandı veya bisiklet</div><div class="wc-detail">Genel ısınma</div></div><div class="wc-right"><div class="wc-sets">5 dk</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Kol daireleri (ileri + geri)</div><div class="wc-detail">Geniş daireler — omuz eklemini ısıt</div></div><div class="wc-right"><div class="wc-sets">2 × 20</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Band Pull Apart</div><div class="wc-detail">Rotator cuff aktivasyonu</div></div><div class="wc-right"><div class="wc-sets">2 × 15</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Overhead Press ısınma — boş bar</div><div class="wc-detail">Hareket paternini aktive et</div></div><div class="wc-right"><div class="wc-sets">2 × 12</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-train">💪 ANTRENMAN — Omuz + Karın · ~50 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-gold">Omuz — Compound</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Overhead Press — Barbell veya DB <span class="tag tag-p">ÖNCELİK</span></div>
+              <div class="ex-why">Tüm omuz başlarını bir arada çalıştırır. Her hafta +2.5 kg.</div></div>
+              <span class="sets sgold">4 × 6–8</span>
+            </div>
+            <div class="tip tip-gold">💡 Bar çene hizasından başlar, düz yukarı gider. Sırt hafif geriye — göğüs açık, core sıkı. Setler arası <strong>2–3 dk</strong>.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-gold">Omuz — Genişlik</div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Lateral Raise — Dumbbell <span class="tag tag-p">V ŞEKLİ</span> <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Omuz genişliği buradan geliyor. En önemli izolasyon hareketi.</div></div>
+              <span class="sets sgold">3 × 12–15</span>
+            </div>
+            <div class="tip tip-gold">💡 Baş parmak biraz aşağıya dönsün, dirsek hafif bükük. 90°'nin biraz üstüne kaldır. Ağır gitme — trapeze kayar. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Cable Lateral Raise — Tek Kol</div>
+              <div class="ex-why">Kablo boyunca sabit gerim — dambılın zayıf kaldığı açılarda da çalışır</div></div>
+              <span class="sets sgold">3 × 12 / kol</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-gold">Omuz — Arka</div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Rear Delt Fly — DB veya Reverse Pec Deck <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Arka omuz — ihmal edilince omuz öne düşer, görsel denge bozulur</div></div>
+              <span class="sets sgold">3 × 12–15</span>
+            </div>
+            <div class="tip tip-gold">💡 Öne eğil 90°, dambılları yana kaldır. Veya pec deck'e ters otur. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-purple">Karın</div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Hanging Leg Raise <span class="tag tag-p">ALT KARIN</span> <span class="tag tag-rp">RP</span></div>
+              <div class="ex-why">Alt karın en görünür alan — en doğrudan ve etkili hareket</div></div>
+              <span class="sets sb">3 × 12–15</span>
+            </div>
+            <div class="tip tip-gold">💡 Sallanma yok — kontrollü. Diz bükülü başla, güçlendikçe bacakları düzleştir. Son sette Rest-Pause.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">6</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Cable Crunch <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Karını dirençle çalıştırır — normal crunch'tan çok daha etkili</div></div>
+              <span class="sets sb">3 × 15</span>
+            </div>
+            <div class="tip tip-gold">💡 Dizlerde otur, halat ensede. Sadece gövdeyi bükerek karına katlan — kalçayı hareket ettirme. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">7</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Plank</div>
+              <div class="ex-why">Finisher — tüm core statik dayanım</div></div>
+              <span class="sets sb">3 × 45–60 sn</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>OHP arası: 2–3 dk</strong> &nbsp;|&nbsp; <strong>Lateral Raise arası: 75 sn</strong> &nbsp;|&nbsp; <strong>Core arası: 45 sn</strong></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — Gün 3 · ~7 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Omuz çapraz esnetme</div><div class="wc-detail">Kolu göğüs önünden karşıya uzat, karşı elle baskı uygula</div></div><div class="wc-right"><div class="wc-sets green">2 × 35 sn / kol</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Boyun yan esnetme</div><div class="wc-detail">Başı yana eğ, karşı elle hafif baskı — trapez ve boyun</div></div><div class="wc-right"><div class="wc-sets green">2 × 30 sn / yan</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Karın esnetme — Cobra pozu</div><div class="wc-detail">Yüz üstü uzan, ellere dayanarak üstü kaldır</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Derin nefes</div><div class="wc-detail">4 sn al — 4 sn tut — 6 sn ver</div></div><div class="wc-right"><div class="wc-sets green">8 tekrar</div></div></div>
+      </div>
+    </div>
+
+  </div><!-- end dp-3 -->
+
+  <!-- ════ GÜN 4: BACAK ════ -->
+  <div class="day-panel" id="dp-4">
+
+    <div class="alert al-r">🦵 <strong>Bacak günü</strong> — en yorucu gün. Squat'ta diz asla içe kapanmasın. Her hafta +2.5 kg ilerle. Antrenman öncesi ısınma bu günde en kritik.</div>
+
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — Gün 4 · ~10 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Yürüyüş bandı veya bisiklet</div><div class="wc-detail">Genel ısınma — bacakları ısıt</div></div><div class="wc-right"><div class="wc-sets">5 dk</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Leg Swing — ileri/geri ve yan</div><div class="wc-detail">Duvarа tutunarak bacağı sall — kalça eklemini aç</div></div><div class="wc-right"><div class="wc-sets">2 × 15 / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Hip Flexor Stretch — dinamik</div><div class="wc-detail">Bir diz yerde, öne at — dinamik olarak ileri-geri git</div></div><div class="wc-right"><div class="wc-sets">2 × 10 / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Squat ısınma — boş bar veya goblet squat</div><div class="wc-detail">Yavaş tempoda, derine in — form kontrolü</div></div><div class="wc-right"><div class="wc-sets">2 × 10</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-train">💪 ANTRENMAN — Bacak · ~60 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-red">Quad + Glute — Compound</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Squat <span class="tag tag-p">ÖNCELİK</span> <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Bacak kütlesinin temeli. Her hafta +2.5 kg. Bu hareketteki ilerleme her şeyi belirler.</div></div>
+              <span class="sets sr">4 × 6–8</span>
+            </div>
+            <div class="tip tip-gold">💡 Derin in — uyluk paralel veya altı. Diz ayak yönünde, içe kapanmasın. Son sette Drop Set. Setler arası <strong>2–3 dk</strong>.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Romanian Deadlift <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Hamstring ve glute — squat'ın tamamlayıcısı, posterior chain</div></div>
+              <span class="sets sr">3 × 8–10</span>
+            </div>
+            <div class="tip tip-gold">💡 Bar bacağa yakın, sırt düz. Kalçayı arkaya çekerek in, hamstringde germe hissince dur. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Glute — Öncelikli</div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Hip Thrust — Barbell <span class="tag tag-p">ÖNCELİK</span> <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Glute aktivasyonunda squat'ı bile geçer — estetik için kritik</div></div>
+              <span class="sets sr">4 × 10–12</span>
+            </div>
+            <div class="tip tip-gold">💡 Omuzlar bankın üst kenarında, bar kalça kemiğinin üzerinde. Tepede 1–2 sn sıkıştır, bel hiperekstansiyona gitmesin. Son sette Drop Set.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">İzolasyon</div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Leg Extension <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Quad izolasyon — squat sonrası kalan lifleri yorar</div></div>
+              <span class="sets sr">3 × 12–15</span>
+            </div>
+            <div class="tip tip-gold">💡 Tepede 1 sn tut. Son sette Drop Set. Diz ağrısı varsa ağırlığı azalt.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Leg Curl — Lying veya Seated <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Hamstring izolasyon — RDL'nin tamamlayıcısı</div></div>
+              <span class="sets sr">3 × 12</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Baldır</div>
+
+        <div class="ex-num">
+          <div class="ex-index">6</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Standing Calf Raise <span class="tag tag-ds">DS</span></div>
+              <div class="ex-why">Tam aşağı tam yukarı — yarım ROM işe yaramaz</div></div>
+              <span class="sets sr">4 × 20</span>
+            </div>
+            <div class="tip tip-gold">💡 Merdiven veya yüksek yüzey kenarında yap — topuk tam aşağıya. Son sette Drop Set. Arası 45 sn.</div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>Squat / RDL / Hip Thrust arası: 2–3 dk</strong> &nbsp;|&nbsp; <strong>İzolasyon hareketler arası: 90 sn</strong></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — Gün 4 · ~10 dakika</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Quadriceps esnetme — ayakta</div><div class="wc-detail">Ayakta dur, bir ayağı arkadan tut, dizi bükerek çek</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Hamstring esnetme — ayakta</div><div class="wc-detail">Ayak önde düz, gövdeyi öne eğ, elleri bacağa kaydır</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Hip Flexor Stretch — statik</div><div class="wc-detail">Bir diz yerde, öne at — kalçayı öne iteliyormuş gibi</div></div><div class="wc-right"><div class="wc-sets green">2 × 45 sn / yön</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Glute esnetme — dört ayak figür 4</div><div class="wc-detail">Sırt üstü, bir ayak diğer dizin üstünde, ikisini göğse çek</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / yön</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Baldır esnetme — duvara</div><div class="wc-detail">Topuğu yerden kesmeden ayak önünü duvara daya</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / bacak</div></div></div>
+      </div>
+    </div>
+
+  </div><!-- end dp-4 -->
+
+  <!-- ════ DİNLENME ════ -->
+  <div class="day-panel" id="dp-5">
+    <div class="rest-box">
+      <div class="rest-icon">😴</div>
+      <div class="rest-title">DİNLENME GÜNÜ</div>
+      <div class="rest-text">
+        Kaslar antrenmanda yıkılır, <strong style="color:#fff">dinlenirken büyür.</strong><br><br>
+        Sabah rutinine devam: <strong style="color:#fff">50 Tyson push-up + yürüyüş.</strong><br>
+        Bunun dışında kas çalıştırma. Protein al, iyi uyu.
+      </div>
+    </div>
+    <div class="tip tip-green">✅ <strong>Önerilen düzen:</strong> Pzt Göğüs · Sal Dinlenme · Çar Sırt · Per Dinlenme · Cum Omuz · Cmt Bacak · Paz Dinlenme<br><br>Sırayı değiştirebilirsin ama <strong>Göğüs ile Omuz günü arasında en az 1 dinlenme günü olsun</strong> — ikisi de ön deltoid kullanır.</div>
+  </div>
+
+</div><!-- end antrenman section -->
+
+
+<!-- ══ VÜCUT AĞIRLIĞI ══ -->
+<div id="vucut" class="section">
+
+  <div class="sec-title">Salon Yok Programı</div>
+  <div class="sec-sub">Form Koruma — 1–2 Hafta</div>
+
+  <div class="alert al-gold">
+    💡 <strong>Bu program ne için:</strong> Salona gidemediğin 1–2 haftalık dönemlerde kas kaybetmemek ve formu korumak için. Yeni kas yapmaya çalışma — mevcut olanı koru.
+  </div>
+
+  <div class="alert al-g">
+    ☀️ <strong>Sabah rutinin değişmez:</strong> 50 Tyson push-up + yürüyüş. Bu program sabah rutinine ek olarak akşam yapılır.
+  </div>
+
+  <!-- HAFTALIK DÜZEN -->
+  <div class="block">
+    <div class="block-title" style="background:#0d1a2e;border:1px solid #1e3a5f;border-bottom:none;color:var(--blue)">📅 HAFTALIK DÜZEN</div>
+    <div class="block-body-inner" style="background:#080f1e;border:1px solid #1e3a5f;border-top:none;border-radius:0 0 6px 6px">
+      <div class="wc-row"><div><div class="wc-name" style="color:#93c5fd">Pazartesi</div><div class="wc-detail">Üst Vücut A</div></div><div class="wc-right"><div class="wc-sets" style="color:var(--blue)">~30 dk</div></div></div>
+      <div class="wc-row"><div><div class="wc-name" style="color:#666">Salı</div><div class="wc-detail">Dinlenme — sabah rutini devam</div></div><div class="wc-right"><div class="wc-sets" style="color:#666">—</div></div></div>
+      <div class="wc-row"><div><div class="wc-name" style="color:#93c5fd">Çarşamba</div><div class="wc-detail">Alt Vücut</div></div><div class="wc-right"><div class="wc-sets" style="color:var(--blue)">~30 dk</div></div></div>
+      <div class="wc-row"><div><div class="wc-name" style="color:#666">Perşembe</div><div class="wc-detail">Dinlenme — sabah rutini devam</div></div><div class="wc-right"><div class="wc-sets" style="color:#666">—</div></div></div>
+      <div class="wc-row"><div><div class="wc-name" style="color:#93c5fd">Cuma</div><div class="wc-detail">Üst Vücut B</div></div><div class="wc-right"><div class="wc-sets" style="color:var(--blue)">~30 dk</div></div></div>
+      <div class="wc-row"><div><div class="wc-name" style="color:#666">C.tesi / Pazar</div><div class="wc-detail">Dinlenme</div></div><div class="wc-right"><div class="wc-sets" style="color:#666">—</div></div></div>
+    </div>
+  </div>
+
+  <!-- DAY NAV -->
+  <div class="day-nav">
+    <button class="d-btn active" onclick="selVucut(1,this)">A<small>Üst Vücut</small></button>
+    <button class="d-btn" onclick="selVucut(2,this)">B<small>Alt Vücut</small></button>
+    <button class="d-btn" onclick="selVucut(3,this)">C<small>Üst Vücut</small></button>
+  </div>
+
+  <!-- ═══ ÜST VÜCUT A ═══ -->
+  <div class="day-panel active" id="vp-1">
+
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — 3 dk</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Jumping Jack</div></div><div class="wc-right"><div class="wc-sets">1 × 30 sn</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Kol daireleri (ileri + geri)</div></div><div class="wc-right"><div class="wc-sets">1 × 20</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Push-up — çok yavaş ısınma</div></div><div class="wc-right"><div class="wc-sets">1 × 8</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-train">💪 ÜST VÜCUT A — Göğüs + Sırt + Core · ~30 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-red">Göğüs</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Push-up <span class="tag tag-p">ANA</span></div>
+              <div class="ex-why">Göğüs + omuz + triceps. 3 sn inerek yap — yavaş eksantrik daha etkili.</div></div>
+              <span class="sets sr">4 × MAX</span>
+            </div>
+            <div class="tip tip-gold">💡 Seti bitirince 15 sn bekle, 2–3 tekrar daha yap (Rest-Pause). Sabah push-up'ından farklı ritim — bu yavaş ve kontrollü.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Incline Push-up (eller masa/sehpada)</div>
+              <div class="ex-why">Üst göğüs — salondaki incline bench'in yerini tutar</div></div>
+              <span class="sets sr">3 × 12</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-green">Sırt</div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Pull-up / Barfiks <span class="tag tag-p">ANA</span></div>
+              <div class="ex-why">Kanat genişliği korunur. Park barı veya ev barı.</div></div>
+              <span class="sets sg">4 × MAX</span>
+            </div>
+            <div class="tip tip-gold">💡 Barfiks barı yoksa: masa altı inverted row (masa altına sırt üstü gir, kenarına tutun, göğsü masaya çek).</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Superman Hold</div>
+              <div class="ex-why">Alt sırt — deadlift olmadan posterior chain aktif tutar</div></div>
+              <span class="sets sg">3 × 12</span>
+            </div>
+            <div class="tip tip-gold">💡 Yüz üstü uzan, kol ve bacakları aynı anda kaldır, tepede 2 sn tut.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-purple">Core</div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Plank</div></div>
+              <span class="sets sb">3 × 45–60 sn</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">6</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Hollow Body Hold</div>
+              <div class="ex-why">Sırt yerde, bel basık, kol ve bacaklar havada — en etkili core</div></div>
+              <span class="sets sb">3 × 30 sn</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>Push-up / Barfiks arası: 90 sn</strong> &nbsp;|&nbsp; <strong>Diğerleri: 60 sn</strong></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — 5 dk</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Göğüs esnetme — kapı kenarı</div><div class="wc-detail">Kapı çerçevesine el koy, ileri adım at</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Lat esnetme — kapıya tutunarak</div><div class="wc-detail">Kapı kenarına tut, dizleri büküp geri yaslan</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / yan</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Child's Pose</div></div><div class="wc-right"><div class="wc-sets green">1 × 60 sn</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ALT VÜCUT ═══ -->
+  <div class="day-panel" id="vp-2">
+
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — 3 dk</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Yürüyüş / hafif koşu</div></div><div class="wc-right"><div class="wc-sets">2 dk</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Leg Swing — ileri/geri</div><div class="wc-detail">Duvara tutunarak bacağı salla</div></div><div class="wc-right"><div class="wc-sets">1 × 15 / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Air Squat — yavaş</div></div><div class="wc-right"><div class="wc-sets">1 × 8</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-train">💪 ALT VÜCUT — Bacak + Glute · ~30 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-red">Quad + Glute</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Jump Squat <span class="tag tag-p">ANA</span></div>
+              <div class="ex-why">Patlayıcı güç korunur — normal squat'tan çok daha etkili</div></div>
+              <span class="sets sr">4 × 10–12</span>
+            </div>
+            <div class="tip tip-gold">💡 Çöm, patlayıcı sıçra, yumuşak in. Diz içe kapanmasın. Yorgunsa son 1–2 seti normal air squat'a dönüştür.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Bulgarian Split Squat (arka ayak sandalyede)</div>
+              <div class="ex-why">Salondaki squat'ın en iyi vücut ağırlığı alternatifi</div></div>
+              <span class="sets sr">3 × 10 / bacak</span>
+            </div>
+            <div class="tip tip-gold">💡 Ağırlık olmadan da çok etkili. Öndeki diz 90°, diz öne geçmesin.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Hamstring + Glute</div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Glute Bridge — Tek Bacak <span class="tag tag-p">ANA</span></div>
+              <div class="ex-why">Hip thrust'ın ev versiyonu — glute ve hamstringi korur</div></div>
+              <span class="sets sr">4 × 12 / bacak</span>
+            </div>
+            <div class="tip tip-gold">💡 Tepede 2 sn sıkıştır. Ağırlık eklemek istersen: üstüne sırt çantası veya su bidonu koy.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Walking Lunge</div></div>
+              <span class="sets sr">3 × 12 / bacak</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Baldır</div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Single Leg Calf Raise — merdiven kenarı</div></div>
+              <span class="sets sr">3 × 20 / bacak</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>Tüm hareketler arası: 75–90 sn</strong></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — 5 dk</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Quad esnetme — ayakta</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Hamstring esnetme</div><div class="wc-detail">Ayak önde düz, gövdeyi öne eğ</div></div><div class="wc-right"><div class="wc-sets green">2 × 40 sn / bacak</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Hip Flexor Stretch</div><div class="wc-detail">Bir diz yerde, öne at</div></div><div class="wc-right"><div class="wc-sets green">2 × 45 sn / yön</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ÜST VÜCUT B ═══ -->
+  <div class="day-panel" id="vp-3">
+
+    <div class="alert al-b">🔄 <strong>Üst Vücut B:</strong> A'dan farklı açılar — omuz ve triceps biraz daha fazla.</div>
+
+    <div class="block">
+      <div class="block-title block-warm">🔥 ISINMA — 3 dk</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Jumping Jack</div></div><div class="wc-right"><div class="wc-sets">1 × 30 sn</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Kol daireleri</div></div><div class="wc-right"><div class="wc-sets">1 × 20</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Pike Push-up — ısınma</div></div><div class="wc-right"><div class="wc-sets">1 × 8</div></div></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-train">💪 ÜST VÜCUT B — Omuz + Triceps + Sırt · ~30 dk</div>
+      <div class="block-body-inner">
+
+        <div class="mlabel ml-gold">Omuz</div>
+
+        <div class="ex-num">
+          <div class="ex-index">1</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Pike Push-up <span class="tag tag-p">ANA</span></div>
+              <div class="ex-why">Overhead press'in yerini tutar — omuz hacmini korur</div></div>
+              <span class="sets sgold">4 × 10–12</span>
+            </div>
+            <div class="tip tip-gold">💡 Kalça havada, vücut ters V. Ayakları sandalyeye koyarsan zorlaşır.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">2</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Wide Push-up — yavaş tempo</div>
+              <div class="ex-why">Yan deltoid aktivasyonu — lateral raise'in yerini kısmen tutar</div></div>
+              <span class="sets sgold">3 × 12</span>
+            </div>
+            <div class="tip tip-gold">💡 Eller geniş, dirsek dışa açık. 3 sn inerek — tempo çalışması.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-green">Sırt + Biceps</div>
+
+        <div class="ex-num">
+          <div class="ex-index">3</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Chin-up — Ters Tutuş <span class="tag tag-p">ANA</span></div>
+              <div class="ex-why">Hem sırt hem biceps — A gününden farklı tutuş</div></div>
+              <span class="sets sg">4 × MAX</span>
+            </div>
+            <div class="tip tip-gold">💡 Avuç içi sana bakıyor. Genellikle normal barfiksten 2–3 tekrar fazla çıkar.</div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">4</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Inverted Row — masa altı</div>
+              <div class="ex-why">Orta sırt kalınlığını korur</div></div>
+              <span class="sets sg">3 × 12</span>
+            </div>
+            <div class="tip tip-gold">💡 Masa altına sırt üstü gir, kenarını tut, göğsü masaya çek. Bacaklar düz = zor, bükük = kolay.</div>
+          </div>
+        </div>
+
+        <div class="mlabel ml-red">Triceps</div>
+
+        <div class="ex-num">
+          <div class="ex-index">5</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Chair Dip / Bench Dip</div>
+              <div class="ex-why">Triceps hacmini korur — sandalye veya koltuk kenarı</div></div>
+              <span class="sets sr">3 × 15</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-num">
+          <div class="ex-index">6</div>
+          <div class="ex-content">
+            <div class="ex-top">
+              <div><div class="ex-name">Diamond Push-up</div></div>
+              <span class="sets sr">3 × 8–10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rest-bar">⏸ <strong>Pike Push-up / Chin-up arası: 90 sn</strong> &nbsp;|&nbsp; <strong>Diğerleri: 60 sn</strong></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title block-cool">🧊 SOĞUMA — 5 dk</div>
+      <div class="block-body-inner">
+        <div class="wc-row"><div><div class="wc-name">Omuz çapraz esnetme</div><div class="wc-detail">Kolu göğüs önünden karşıya uzat</div></div><div class="wc-right"><div class="wc-sets green">2 × 35 sn / kol</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Triceps esnetme</div><div class="wc-detail">Kolu kafanın arkasına kaldır, karşı elle dirseği it</div></div><div class="wc-right"><div class="wc-sets green">2 × 30 sn / kol</div></div></div>
+        <div class="wc-row"><div><div class="wc-name">Child's Pose</div></div><div class="wc-right"><div class="wc-sets green">1 × 60 sn</div></div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end vucut section -->
+
+<!-- ══ BESLENME ══ -->
+<div id="beslenme" class="section">
+
+  <div class="sec-title">Beslenme Planı</div>
+  <div class="sec-sub">2300 kcal — Yağ Yakımı</div>
+
+  <div class="macro-strip">
+    <div class="macro-box"><div class="macro-val" style="color:var(--red)">2300</div><div class="macro-lbl">Kalori</div></div>
+    <div class="macro-box"><div class="macro-val" style="color:var(--green)">155g</div><div class="macro-lbl">Protein</div></div>
+    <div class="macro-box"><div class="macro-val" style="color:var(--blue)">225g</div><div class="macro-lbl">Karbonhidrat</div></div>
+    <div class="macro-box"><div class="macro-val" style="color:var(--gold)">65g</div><div class="macro-lbl">Yağ</div></div>
+  </div>
+
+  <div class="alert al-r">🎯 Haftada <strong>0.3–0.5 kg düşüş</strong> hedefi. Daha hızlı düşüyorsa 150 kcal ekle. Hiç düşmüyorsa 150 kcal çıkar. Kilo takibi sadece Pazartesi sabahı.</div>
+
+  <div class="meal-grid">
+
+    <div class="meal-card">
+      <div class="meal-head"><div class="meal-name">☀️ Sabah</div><div class="meal-kcal">~520 kcal · 40g P</div></div>
+      <div class="meal-body">
+        <div class="food-row"><div class="food-name">Yulaf<span class="food-alt">Sütle pişir, 3–4 dk</span></div><div class="food-qty">80g</div></div>
+        <div class="food-row"><div class="food-name">Süt (%2)</div><div class="food-qty">250ml</div></div>
+        <div class="food-row"><div class="food-name">Muz</div><div class="food-qty">1 orta</div></div>
+        <div class="food-row"><div class="food-name">Fıstık ezmesi<span class="food-alt">Şekersiz, doğal</span></div><div class="food-qty">1 kaşık</div></div>
+        <div class="food-row"><div class="food-name">Protein tozu<span class="food-alt">Opsiyonel — yulafa karıştır</span></div><div class="food-qty">1 ölçek</div></div>
+        <div class="meal-note">✅ <strong>Alternatif:</strong> 3 dilim tam buğday ekmek + 60g peynir + domates/salatalık (~500 kcal · 32g P)<br>✅ <strong>Hızlı:</strong> Granola 70g + yoğurt 200g + meyve (~480 kcal · 28g P)</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-head"><div class="meal-name">🍗 Öğlen</div><div class="meal-kcal">~680 kcal · 55g P</div></div>
+      <div class="meal-body">
+        <div class="food-row"><div class="food-name">Tavuk göğsü<span class="food-alt">Çiğ ağırlık — pişince ~170g olur</span></div><div class="food-qty">220g (çiğ)</div></div>
+        <div class="food-row"><div class="food-name">Pirinç veya bulgur<span class="food-alt">Çiğ ağırlık — pişince 3 katına çıkar</span></div><div class="food-qty">70g (çiğ)</div></div>
+        <div class="food-row"><div class="food-name">Yoğurt (%2)</div><div class="food-qty">150g</div></div>
+        <div class="food-row"><div class="food-name">Salata + zeytinyağı<span class="food-alt">Domates, salatalık, marul — serbest miktar</span></div><div class="food-qty">serbest</div></div>
+        <div class="meal-note">✅ <strong>Alternatif A:</strong> Dana kıyma 180g + bulgur 60g + cacık 150g (~670 kcal · 50g P)<br>✅ <strong>Alternatif B:</strong> Ton balığı 160g + 2 dilim ekmek + mısır + yoğurt (~600 kcal · 50g P)<br>✅ <strong>Bütçe:</strong> Kuru fasulye 120g (kuru) + pirinç 55g + yoğurt (~650 kcal · 38g P)</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-head"><div class="meal-name">🥜 Ara Öğün</div><div class="meal-kcal">~280 kcal · 25g P</div></div>
+      <div class="meal-body">
+        <div class="food-row"><div class="food-name">Süzme yoğurt<span class="food-alt">Protein yoğun ve doyurucu</span></div><div class="food-qty">200g</div></div>
+        <div class="food-row"><div class="food-name">Badem veya ceviz</div><div class="food-qty">15–20 adet</div></div>
+        <div class="meal-note">✅ <strong>Antrenman öncesiyse:</strong> Muz + yoğurt 150g (hızlı enerji, 30 dk önce)<br>✅ <strong>Alternatif:</strong> 2 dilim ekmek + 50g kaşar peyniri (~340 kcal · 22g P)<br>✅ <strong>Hızlı:</strong> Protein bar veya 1 ölçek protein tozu + süt</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-head"><div class="meal-name">🌙 Akşam</div><div class="meal-kcal">~620 kcal · 50g P</div></div>
+      <div class="meal-body">
+        <div class="food-row"><div class="food-name">Et veya tavuk<span class="food-alt">Çiğ ağırlık</span></div><div class="food-qty">200–220g</div></div>
+        <div class="food-row"><div class="food-name">Patates, makarna veya pirinç<span class="food-alt">Çiğ/kuru ağırlık</span></div><div class="food-qty">120–140g</div></div>
+        <div class="food-row"><div class="food-name">Sebze<span class="food-alt">Brokoli, kabak, patlıcan, biber</span></div><div class="food-qty">serbest</div></div>
+        <div class="food-row"><div class="food-name">Zeytinyağı<span class="food-alt">Pişirme için</span></div><div class="food-qty">1 kaşık</div></div>
+        <div class="meal-note">✅ <strong>Balık günü (hf 2×):</strong> Somon 200g + bulgur 50g + fırın sebze (~580 kcal · 45g P)<br>✅ <strong>Alternatif:</strong> Hindi göğsü 250g + tatlı patates 200g + brokoli (~570 kcal · 55g P)<br>✅ <strong>Vejetaryen:</strong> Nohut 120g (kuru) + pirinç 55g + cacık (~580 kcal · 32g P)</div>
+      </div>
+    </div>
+
+    <div class="meal-card">
+      <div class="meal-head"><div class="meal-name">🌜 Gece</div><div class="meal-kcal">~200 kcal · 25g P</div></div>
+      <div class="meal-body">
+        <div class="food-row"><div class="food-name">Süzme yoğurt<span class="food-alt">Kasein protein — uyurken kas korur</span></div><div class="food-qty">200g</div></div>
+        <div class="meal-note">✅ <strong>Alternatif A:</strong> Az yağlı çökelek 150g + ½ muz (~210 kcal · 22g P)<br>✅ <strong>Alternatif B:</strong> Süt 250ml + 1 ölçek protein tozu (~220 kcal · 30g P)<br><br>⚠️ Bu öğünü <strong>atlama</strong> — geceleri kasein olmadan kas yıkımı artar.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="alert al-gold" style="margin-top:6px">
+    📏 <strong>Ölçüm notu:</strong> Tüm miktarlar pişirmeden önce tartılır. Et/tavuk pişince ~%25 küçülür · Pirinç/bulgur pişince ~3 katına çıkar · Makarna pişince ~2.5 katına çıkar.
+  </div>
+
+</div>
+
+<!-- ══ TAKVİM ══ -->
+<div id="takvim" class="section">
+  <div class="sec-title">Haftalık Program</div>
+  <div class="sec-sub">Önerilen Düzen</div>
+  <div class="week-row">
+    <div class="wd train"><div class="wd-day">Pzt</div><div class="wd-type">GÖĞ</div><div class="wd-detail">Bench + Dips</div></div>
+    <div class="wd rest"><div class="wd-day">Sal</div><div class="wd-type">DİN</div><div class="wd-detail">Sabah rutini</div></div>
+    <div class="wd train"><div class="wd-day">Çar</div><div class="wd-type">SIRT</div><div class="wd-detail">DL + Barfiks</div></div>
+    <div class="wd rest"><div class="wd-day">Per</div><div class="wd-type">DİN</div><div class="wd-detail">Sabah rutini</div></div>
+    <div class="wd train"><div class="wd-day">Cum</div><div class="wd-type">OMZ</div><div class="wd-detail">OHP + Core</div></div>
+    <div class="wd train"><div class="wd-day">Cmt</div><div class="wd-type">BAC</div><div class="wd-detail">Squat + RDL</div></div>
+    <div class="wd rest"><div class="wd-day">Paz</div><div class="wd-type">DİN</div><div class="wd-detail">Tam dinlenme</div></div>
+  </div>
+  <div class="alert al-gold">💡 Sabah rutini (50 Tyson + yürüyüş) antrenman günlerinde de devam eder. Salon antrenmanıyla arasında en az 4 saat bırak.</div>
+  <div class="alert al-g" style="margin-top:10px">✅ Takvimi değiştirebilirsin ama şu kuralı koru: <strong>Göğüs ve Omuz günleri arasında en az 1 dinlenme günü</strong> — ikisi de ön deltoid kullanır.</div>
+</div>
+
+<!-- ══ TAKİP ══ -->
+<div id="takip" class="section">
+  <div class="sec-title">İlerleme Takibi</div>
+  <div class="sec-sub">Sadece Pazartesi Sabahı — Aç Karnına</div>
+  <div class="alert al-gold" style="margin-bottom:16px">⚡ Günlük 1–2 kg değişim su ve sindirimden — yanıltıcı. <strong>Haftada bir tart, haftalık karar ver.</strong></div>
+  <div class="tr-card">
+    <div class="tr-head">⚖️ Haftalık Kilo</div>
+    <div class="tr-row"><div class="tr-lbl">Başlangıç</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 1</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 2</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 3</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 4</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 5</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 6</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 7</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    <div class="tr-row"><div class="tr-lbl">Hafta 8</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+  </div>
+  <div class="prog-grid">
+    <div class="tr-card">
+      <div class="tr-head">🏋 Bench Press (max ağırlık × 8)</div>
+      <div class="tr-row"><div class="tr-lbl">Başlangıç</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 4</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 8</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-head">💀 Deadlift (max ağırlık × 5)</div>
+      <div class="tr-row"><div class="tr-lbl">Başlangıç</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 4</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 8</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-head">🔥 Squat (max ağırlık × 6)</div>
+      <div class="tr-row"><div class="tr-lbl">Başlangıç</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 4</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 8</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">kg</div></div>
+    </div>
+    <div class="tr-card">
+      <div class="tr-head">💪 Barfiks MAX tekrar</div>
+      <div class="tr-row"><div class="tr-lbl">Başlangıç</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">tekrar</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 4</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">tekrar</div></div>
+      <div class="tr-row"><div class="tr-lbl">Hafta 8</div><input class="t-inp" type="number" placeholder="—"><div class="t-unit">tekrar</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KURALLAR ══ -->
+<div id="kurallar" class="section">
+  <div class="sec-title">Programın Kuralları</div>
+  <div class="sec-sub">Bunları Bilmeden Başlama</div>
+
+  <div class="rule"><div class="r-num">01</div><div><div class="r-title">Incline her zaman ilk sırада</div><div class="r-text">Üst göğüs zayıf bölgen. Taze ve güçlüyken incline'a başla — flat bench ikinci. 3 ay sonra farkını göreceksin.</div></div></div>
+  <div class="rule"><div class="r-num">02</div><div><div class="r-title">Compound hareketlerde 2–3 dakika dinlen</div><div class="r-text">Bench, Deadlift, Squat, Hip Thrust arası en az 2 dakika. 60 saniyede girersen ağırlık düşer, kalite bozulur, büyüme azalır.</div></div></div>
+  <div class="rule"><div class="r-num">03</div><div><div class="r-title">Her hafta +2.5 kg ilerle</div><div class="r-text">Bench, Squat, Deadlift'te her hafta küçük ağırlık ekle. Yapamadığın hafta aynı yerde kal. 8 haftada ciddi fark çıkar.</div></div></div>
+  <div class="rule"><div class="r-num">04</div><div><div class="r-title">Protein her gün 150g+</div><div class="r-text">Kaloriyi tutturamadığın günler olacak — o zaman bile proteini kesme. Kalori esnek, protein değil.</div></div></div>
+  <div class="rule"><div class="r-num">05</div><div><div class="r-title">Sadece Pazartesi sabahı tart</div><div class="r-text">Günlük kilo değişimi su ve sindirimden — yanıltıcı. Haftalık ölç, haftalık karar ver.</div></div></div>
+  <div class="rule"><div class="r-num">06</div><div><div class="r-title">Sabah rutini dokunulmaz</div><div class="r-text">50 Tyson push-up + yürüyüş — hava ne olursa olsun, salon günü olsa bile. Bu programın temeli bu ikisi.</div></div></div>
+  <div class="rule"><div class="r-num">07</div><div><div class="r-title">3 ay sabret, sonra yargıla</div><div class="r-text">Görünür değişim 6–8. haftadan sonra hızlanır. Çoğu insan bu dönemde bırakır. Sen bırakma.</div></div></div>
+</div>
+
+<script>
+function switchTab(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+function selDay(n,el){
+  document.querySelectorAll('#antrenman .day-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#antrenman .d-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('dp-'+n).classList.add('active');
+  el.classList.add('active');
+}
+function selVucut(n,el){
+  document.querySelectorAll('#vucut .day-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#vucut .d-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('vp-'+n).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
